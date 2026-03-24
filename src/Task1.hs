@@ -36,13 +36,15 @@ data Min a = PosInf | Min a
   deriving (Show, Eq)
 
 instance Ord a => Semigroup (Min a) where
-  (<>) = error "TODO: define (<>) (Semigroup (Min a))"
+  PosInf <> x = x
+  x <> PosInf = x
+  Min x <> Min y = Min (min x y)
 
 instance Ord a => Monoid (Min a) where
-  mempty = error "TODO: define mempty (Monoid (Min a))"
+  mempty = PosInf
 
 instance Ord a => Measured (Min a) a where
-  measure = error "TODO: define measure (Measured (Min a) a)"
+  measure = Min
 
 -- | Max
 --
@@ -62,13 +64,15 @@ data Max a = NegInf | Max a
   deriving (Show, Eq)
 
 instance Ord a => Semigroup (Max a) where
-  (<>) = error "TODO: define (<>) (Semigroup (Max a))"
+  NegInf <> x = x
+  x <> NegInf = x
+  Max x <> Max y = Max (max x y)
 
 instance Ord a => Monoid (Max a) where
-  mempty = error "TODO: define mempty (Monoid (Max a))"
+  mempty = NegInf
 
 instance Ord a => Measured (Max a) a where
-  measure = error "TODO: define measure (Measured (Max a) a)"
+  measure = Max
 
 -- | MinMax
 --
@@ -88,13 +92,13 @@ newtype MinMax a = MinMax { getMinMax :: (Min a, Max a) }
   deriving (Show, Eq)
 
 instance Ord a => Semigroup (MinMax a) where
-  (<>) = error "TODO: define (<>) (Semigroup (MinMax a))"
+  MinMax (mn1, mx1) <> MinMax (mn2, mx2) = MinMax (mn1 <> mn2, mx1 <> mx2)
 
 instance Ord a => Monoid (MinMax a) where
-  mempty = error "TODO: define mempty (Monoid (MinMax a))"
+  mempty = MinMax (mempty, mempty)
 
 instance Ord a => Measured (MinMax a) a where
-  measure = error "TODO: define measure (Measured (MinMax a) a)"
+  measure x = MinMax (Min x, Max x)
 
 -- | Size
 --
@@ -114,10 +118,10 @@ newtype Size a = Size { getSize :: Int }
   deriving (Show, Eq)
 
 instance Semigroup (Size a) where
-  (<>) = error "TODO: define (<>) (Semigroup (Size a))"
+  Size x <> Size y = Size (x + y)
 
 instance Monoid (Size a) where
-  mempty = error "TODO: define mempty (Monoid (Size a))"
+  mempty = Size 0
 
 instance Measured (Size a) a where
-  measure = error "TODO: define measure (Measured (Size a) a)"
+  measure _ = Size 1
