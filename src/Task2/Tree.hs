@@ -5,6 +5,8 @@ module Task2.Tree where
 
 import Common.MonoidalTree
 
+import Data.Foldable (toList)
+
 import Task1 (Measured(..))
 
 -- * Binary tree definition
@@ -19,22 +21,37 @@ data Tree m a
 
 -- | Measures given tree using provided measure of 'a'
 instance Measured m a => Measured m (Tree m a) where
-  measure = error "TODO: define measure (Measured m (Task2.Tree m a))"
+  measure Empty = mempty
+  measure (Leaf x) = measure x
+  measure (Branch m _ _) = m
 
 instance Foldable (Tree m) where
-  foldMap = error "TODO: define foldMap (Foldable (Task2.Tree m))"
+  foldMap _ Empty = mempty
+  foldMap f (Leaf x) = f x
+  foldMap f (Branch _ l r) = foldMap f l <> foldMap f r
 
 -- * Smart constructors
 
 leaf :: a -> Tree m a
-leaf = error "TODO: define leaf (Task2.Tree)"
+leaf = Leaf
 
 branch :: Measured m a => Tree m a -> Tree m a -> Tree m a
-branch = error "TODO: define branch (Task2.Tree)"
+branch Empty t = t
+branch t Empty = t
+branch l r = Branch (measure l <> measure r) l r
 
 -- * Monoidal tree instance
 
 instance MonoidalTree Tree where
-  toTree = error "TODO: define toTree (MonoidalTree Task2.Tree)"
-  (<|) = error "TODO: define (<|) (MonoidalTree Task2.Tree)"
-  (|>) = error "TODO: define (|>) (MonoidalTree Task2.Tree)"
+  toTree = build . toList
+    where
+      build :: Measured m a => [a] -> Tree m a
+      build [] = Empty
+      build [x] = leaf x
+      build xs =
+        let n = length xs `div` 2
+            (ls, rs) = splitAt n xs
+        in branch (build ls) (build rs)
+
+  x <| t = branch (leaf x) t
+  t |> x = branch t (leaf x)
