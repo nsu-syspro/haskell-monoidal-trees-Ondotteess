@@ -39,16 +39,10 @@ leaf :: a -> Tree m a
 leaf = Leaf
 
 node2 :: Measured m a => Tree m a -> Tree m a -> Tree m a
-node2 Empty t = t
-node2 t Empty = t
-node2 l r     = Node2 (measure l <> measure r) l r
+node2 l r = Node2 (measure l <> measure r) l r
 
 node3 :: Measured m a => Tree m a -> Tree m a -> Tree m a -> Tree m a
-node3 Empty t1 t2 = node2 t1 t2
-node3 t1 Empty t2 = node2 t1 t2
-node3 t1 t2 Empty = node2 t1 t2
-node3 l m r       = Node3 (measure l <> measure m <> measure r) l m r
-
+node3 l m r = Node3 (measure l <> measure m <> measure r) l m r
 -- * Helper result types
 
 data InsertResult m a
